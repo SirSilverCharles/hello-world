@@ -1,0 +1,320 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>barcode</title>
+</head>
+
+<style media="screen">
+
+body{
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  border: 0px;
+
+  padding: 1rem;
+}
+#mainDiv{
+  padding: 1rem;
+  margin: auto;
+  width: 100%;
+  max-width: 800px;
+}
+
+label{
+  background: #00BCD4;
+  color: #fff;
+  font-size: 1rem;
+  text-align: center;
+  width: 13rem;
+  padding: 1rem;
+  display: inline-block;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+label:hover{
+  filter: brightness(1.01);
+}
+#imgInput{
+  display: none;
+}
+.producto{
+  padding: 1rem;
+  font-size: 2rem;
+}
+.starParent{
+  font-size: 2rem;
+  color: #ff9800;
+}
+
+.commentsBigTitle{
+  font-weight: 600;
+  margin: 2rem 0rem 1rem 0rem;
+}
+
+.commentAutor{
+  text-align: left;
+}
+.commentTitleParent{
+  text-align: left;
+}
+.commentStars{
+  color: #ff9800;
+  display: inline-block;
+}
+.commentTitle{
+  display: inline-block;
+  padding: 0px 1rem;
+  font-weight: 600;
+}
+
+.commentContent{
+  text-align: left;
+}
+
+.commentNumber{
+  color: #a0a0a0;
+  padding: 1rem 0rem 0.5rem 0rem;
+  text-align: left;
+}
+button{
+  font-size: 1rem;
+  padding: 0.5rem 2rem;
+  background: linear-gradient(0deg, rgb(243 243 243) 28%, rgb(251 251 251) 45%);
+  border: 0.1rem solid #a9a9a9;
+  border-radius: 0.2rem;
+
+  left: 1rem;
+}
+</style>
+
+<body class="unselectable body">
+
+  <div class="container">
+    <div id="camera"></div>
+  </div>
+
+  <video autoplay="true" id="videoElement"></video>
+
+<div id="mainDiv">
+  <label>
+      <input type='file' id="imgInput" type="image"/>
+      Capturar codigo de barras
+  </label>
+
+  <div id="resultadoDiv">
+
+  </div>
+</div>
+
+
+
+
+  <script src="quagga.min.js"></script>
+  <script type="text/javascript">
+
+
+
+  document.getElementById('imgInput');
+  imgInput.addEventListener("change",function(){
+    readURL(this);
+  });
+  function readURL(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+      Quagga.decodeSingle({
+          decoder: {
+              readers: ["ean_reader"] // List of active readers
+          },
+          locate: true, // try to locate the barcode in the image
+          src:  e.target.result // or 'data:image/jpg;base64,' + data
+      }, function(result){
+          if(
+            result &&
+            result.codeResult
+          ) {
+              console.log("result", result.codeResult.code);
+              showResult(result.codeResult.code);
+          } else {
+              resultadoDiv.innerHTML="codigo no reconocido";
+              console.log("not detected");
+          }
+      });
+    }
+
+    reader.readAsDataURL(input.files[0]); // convert to base64 string
+  }
+}
+
+imgInput.addEventListener("click",function(){
+  resultadoDiv.innerHTML="...";
+});
+
+
+
+
+var resultadoDiv=document.getElementById('resultadoDiv');
+function showResult(code){
+  resultadoDiv.innerHTML="";
+
+  var div=document.createElement("div");
+  div.className="";
+  div.innerText=code;
+  resultadoDiv.appendChild(div);
+
+  var product;
+  for(var i=0;i<productList.length;i++){
+   if(productList[i].code==code){
+     product=productList[i];
+   }
+  }
+
+  if(product!=null){
+    var div=document.createElement("div");
+    div.className="producto";
+    div.innerText=product.name;
+    resultadoDiv.appendChild(div);
+
+    var div=document.createElement("div");
+    div.className="";
+    div.innerText="Calidad:";
+    resultadoDiv.appendChild(div);
+
+    var starsParent=document.createElement("div");
+    starsParent.className="starParent";
+    resultadoDiv.appendChild(starsParent);
+
+    for(var i=0;i<Number(product.calidad);i++){
+      starsParent.innerText+="★";
+    }
+    for(var i=Number(product.calidad);i<5;i++){
+      starsParent.innerText+="☆";
+    }
+
+
+
+
+    var div=document.createElement("div");
+    div.className="commentsBigTitle";
+    div.innerText="Las mejores reseñas:";
+    resultadoDiv.appendChild(div);
+
+    var div=document.createElement("div");
+    div.className="commentAutor";
+    div.innerText="Juan Perez";
+    resultadoDiv.appendChild(div);
+
+    var commentTitleParent=document.createElement("div");
+    commentTitleParent.className="commentTitleParent";
+    resultadoDiv.appendChild(commentTitleParent);
+
+      var div=document.createElement("div");
+      div.className="commentStars";
+      div.innerText="★☆☆☆☆";
+      commentTitleParent.appendChild(div);
+
+      var div=document.createElement("div");
+      div.className="commentTitle";
+      div.innerText="No me gusto este producto.";
+      commentTitleParent.appendChild(div);
+
+
+
+    var div=document.createElement("div");
+    div.className="commentContent";
+    div.innerText="Pense que estaria bien pero al abrirlo estaba medio podrido. No comprar. Mejor comprar la marca X.";
+    resultadoDiv.appendChild(div);
+
+    var div=document.createElement("div");
+    div.className="commentNumber";
+    div.innerText="516 personas encontraron esto útil";
+    resultadoDiv.appendChild(div);
+
+    var commentTitleParent=document.createElement("div");
+    commentTitleParent.className="commentTitleParent";
+    resultadoDiv.appendChild(commentTitleParent);
+
+      var div=document.createElement("button");
+      div.className="";
+      div.innerText="Me gusta";
+      commentTitleParent.appendChild(div);
+
+  }
+
+}
+
+var productList=[];
+
+var producto={
+  code:7506409006481,
+  name:"Chocolate",
+  calidad:3
+}
+productList.push(producto);
+
+var producto={
+  code:7501055900039,
+  name:"Leche alpura",
+  calidad:2
+}
+productList.push(producto);
+
+
+
+// setTimeout(function(){
+//     Quagga.init({
+//       inputStream : {
+//         name : "Live",
+//         type : "LiveStream",
+//         target: document.getElementById("camera")    // Or '#yourElement' (optional)
+//       },
+//       frequency: 2,
+//       decoder : {
+//         readers : ["ean_reader"]
+//       }
+//     }, function(err) {
+//         if (err) {
+//             console.log(err);
+//             return
+//         }
+//         console.log("Initialization finished. Ready to start");
+//         Quagga.start();
+//     });
+//
+//     Quagga.onProcessed(function(result){
+//       console.log("onProcessed");
+//       console.log(result);
+//     });
+//
+//     Quagga.onDetected(function(result){
+//       console.log("onDetected");
+//       Quagga.stop();
+//       console.log(result);
+//       showResult(result.codeResult.code);
+//     });
+// },1000);
+
+var video = document.querySelector("#videoElement");
+
+if (navigator.mediaDevices.getUserMedia) {
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function (stream) {
+      video.srcObject = stream;
+    })
+    .catch(function (error) {
+      console.log("Something went wrong!",error);
+    });
+}
+
+
+
+
+  </script>
+
+
+</body>
